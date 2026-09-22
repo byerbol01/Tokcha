@@ -41,16 +41,45 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      if (isLogin) await login(form.email, form.password);
-      else await register(form);
+      if (isLogin) {
+        // =================================================================
+        // USTOZ UCHUN MAXSUS KIRISH SHARTI
+        // =================================================================
+        if (form.email === "asilbekxoliyorov441@gmail.com" && form.password === "asilbek1020") {
+          
+          alert("Siz mufaqioyatli akkga kirdiz");
+
+          // Agar sizda user ma'lumotlari LocalStorage'da 'user' kaliti bilan saqlanadigan bo'lsa
+          // va ustoz qachondir to'g'ri kiritgan bo'lsa yoki bazadan ma'lumotni saqlagan bo'lsa, 
+          // unga indamasdan shunchaki avtorizatsiya berib yuboramiz.
+          
+          localStorage.setItem("user-token", "asilbek-admin-token"); // O'zingiz token nomini moslang
+          
+          // Agar sizning tizimingizda user obyektini saqlash talab etilsa, uni kiritamiz.
+          // Lekin o'z rasm va niki bo'lishi uchun quyidagilarni o'zgarishsiz qoldiring
+          // u back-enddan o'qib kelishiga imkon qoldiramiz (agar iloji bo'lsa).
+          localStorage.setItem("user", JSON.stringify({
+            name: "Asilbek Xoliyorov", // Yoki uning bazadagi asl ismi
+            email: "asilbekxoliyorov441@gmail.com",
+            // Rasm bo'sh qoldirilsa, sistemangizning o'zi default yoki uni saqlangan rasmini qo'yadi.
+          }));
+          
+          window.location.href = "/";
+          return;
+        }
+        // =================================================================
+        
+        // Agar ustoz bo'lmasa, oddiy login ishlaydi
+        await login(form.email, form.password);
+      } else {
+        await register(form);
+      }
       navigate("/");
     } catch (err) {
       if (err.code === "NO_ACCOUNT") {
-        // bunday email yo'q → ro'yxatdan o'tkazamiz
         setMode("register");
         setNotice("Bu email bilan hisob topilmadi. Ismingizni kiriting va ro'yxatdan o'ting.");
       } else if (err.code === "EMAIL_TAKEN") {
-        // email band → kirishga o'tkazamiz
         setMode("login");
         setNotice("Bu email allaqachon ro'yxatdan o'tgan. Parolni kiriting va kiring.");
       } else if (err.code === "WRONG_PASSWORD") {
